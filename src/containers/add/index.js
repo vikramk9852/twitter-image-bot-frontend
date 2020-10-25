@@ -16,6 +16,7 @@ const AddTwitterHandle = () => {
         const [searchString, setSearchString] = useState("");
         const [selectedValue, setSelectedValue] = useState("");
         const [showLoader, setShowLoader] = useState(false);
+        const [currentTimeoutId, setTimeoutId] = useState("");
 
         useEffect(() => {
             handleSearch(searchString);
@@ -24,25 +25,37 @@ const AddTwitterHandle = () => {
         const handleSearch = (value) => {
             if (value && value.length >= 3) {
                 setFetching(true);
-                return TwitterApi.searchUsers(value).then(res => {
-                    let fetchedData = res.data;
-                    let selectOptions = [];
-                    selectOptions = fetchedData.map((value, index) => (
-                        <Option key={index} value={value.screen_name}>{value.name}</Option>
-                    ))
-
-                    setSelectOptions(selectOptions);
-                    if (!fetchedData.length) {
-                        setNoContentText("No results found matching criteria");
-                    }
-
-                }).catch(err => {
-                    console.error(err);
-                }).finally(() => {
-                    setFetching(false);
-                })
+                setSelectOptions([]);
+                if (currentTimeoutId) {
+                    clearTimeout(currentTimeoutId);
+                }
+                const timeoutId = setTimeout(() => {
+                    searchWithAPI(value)
+                }, 500);
+                setTimeoutId(timeoutId);
             }
             setNoContentText("Enter 3 or more characters to search");
+        }
+
+        const searchWithAPI = (value) => {
+            console.log("count");
+            return TwitterApi.searchUsers(value).then(res => {
+                let fetchedData = res.data;
+                let selectOptions = [];
+                selectOptions = fetchedData.map((value, index) => (
+                    <Option key={index} value={value.screen_name}>{value.name}</Option>
+                ))
+
+                setSelectOptions(selectOptions);
+                if (!fetchedData.length) {
+                    setNoContentText("No results found matching criteria");
+                }
+
+            }).catch(err => {
+                console.error(err);
+            }).finally(() => {
+                setFetching(false);
+            })
         }
 
         const addTwitterHandle = () => {
@@ -59,26 +72,28 @@ const AddTwitterHandle = () => {
             })
         }
 
-        return <Modal
-            visible={true}
-            closable={false}
-            title="Add a twitter handle"
-            footer={<Button type="primary" onClick={addTwitterHandle}>Add</Button>}
-        >
-            {showLoader && <Loader />}
-            <Select
-                className="add_tHandle__select"
-                onSearch={(value) => setSearchString(value)}
-                onSelect={(value) => setSelectedValue(value)}
-                notFoundContent={fetching ? <div>Searching...<LoadingOutlined /></div> : noContentText}
-                showSearch
+        return <div>
+            <Modal
+                visible={true}
+                closable={false}
+                title="Add a twitter handle"
+                footer={<Button type="primary" onClick={addTwitterHandle}>Add</Button>}
             >
-                {selectOptions}
-            </Select>
-            <p className="no_margin">Enter some text in above input box</p>
-            <p>A list of twitter handles will be fetched from twitter, matching the entered text</p>
+                {showLoader && <Loader />}
+                <Select
+                    className="add_tHandle__select"
+                    onSearch={(value) => setSearchString(value)}
+                    onSelect={(value) => setSelectedValue(value)}
+                    notFoundContent={fetching ? <div>Searching...<LoadingOutlined /></div> : noContentText}
+                    showSearch
+                >
+                    {selectOptions}
+                </Select>
+                <p className="no_margin">Enter some text in above input box</p>
+                <p>A list of twitter handles will be fetched from twitter, matching the entered text</p>
 
-        </Modal>
+            </Modal>
+        </div>
     }
 
 
