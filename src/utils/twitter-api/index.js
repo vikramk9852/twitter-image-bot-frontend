@@ -1,4 +1,4 @@
-import { makeApiCall } from '../ApiHelper/index'
+import { makeApiCall } from '../Helpers/apiHelper';
 
 export default class TwitterApi {
     static searchUsers(searchString) {

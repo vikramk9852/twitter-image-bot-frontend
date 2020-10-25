@@ -11,6 +11,8 @@
     "antd": "^4.1.4",
     "firebase": "7.14.1",
     "firebase-tools": "^8.1.1",
+    "jszip": "^3.5.0",
+    "jszip-utils": "^0.1.0",
     "node-sass": "^4.14.1",
     "react": "16.12.0",
     "react-dom": "16.12.0",
