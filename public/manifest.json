@@ -1,0 +1,8 @@
+{
+    "short_name": "tBot",
+    "name": "Twitter Image Bot",
+    "description": "Displays the images from listed twitter users",
+    "start_url": "https://twitter-user-image-bot.web.app/",
+    "background_color": "#425575",
+    "display": "fullscreen"
+}

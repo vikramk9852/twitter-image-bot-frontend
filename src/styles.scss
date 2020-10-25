@@ -1,0 +1,14 @@
+
+body{
+  background-color: black !important;
+}
+html {
+  overflow: scroll;
+}
+::-webkit-scrollbar {
+  width: 0px; /* Remove scrollbar space */
+  background: transparent; /* Optional: just make scrollbar invisible */
+}
+.no_margin{
+  margin: 0;
+}

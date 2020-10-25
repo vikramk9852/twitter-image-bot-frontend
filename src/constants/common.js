@@ -1,0 +1,1 @@
+export const BASE_API_URL = "https://twitter-user-image-bot.uc.r.appspot.com";
