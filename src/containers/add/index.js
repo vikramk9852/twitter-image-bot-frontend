@@ -38,7 +38,6 @@ const AddTwitterHandle = () => {
         }
 
         const searchWithAPI = (value) => {
-            console.log("count");
             return TwitterApi.searchUsers(value).then(res => {
                 let fetchedData = res.data;
                 let selectOptions = [];
@@ -52,6 +51,11 @@ const AddTwitterHandle = () => {
                 }
 
             }).catch(err => {
+                if (err && typeof (err) === 'string') {
+                    message.error(err)
+                } else {
+                    message.error("Some error occured");
+                }
                 console.error(err);
             }).finally(() => {
                 setFetching(false);
@@ -65,8 +69,12 @@ const AddTwitterHandle = () => {
                 message.success(`${handle} added successfully to the database`);
                 console.log(res);
             }).catch(err => {
+                if (err && typeof (err) === 'string') {
+                    message.error(err)
+                } else {
+                    message.error("Some error occured");
+                }
                 console.error("Error in adding handle", err);
-                message.error("Error in adding handle");
             }).finally(() => {
                 setShowLoader(false);
             })

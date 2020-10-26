@@ -26,6 +26,12 @@ class FirebaseAuth {
     checkStatus = (callback) => {
         return FirebaseAuth.auth.onAuthStateChanged(callback);
     }
+    getAuthToken = () => {
+        if (!FirebaseAuth.auth.currentUser) {
+            return Promise.reject("User is not logged in, please login to continue");
+        }
+        return FirebaseAuth.auth.currentUser.getIdToken(/* forceRefresh */ true)
+    }
 }
 
 export default FirebaseAuth;

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Switch, Route, withRouter } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import HomePage from '../containers/homepage';
 import NoAccess from '../components/NoAccess';
 import AddTwitterHandle from '../containers/add';
 import Login from '../containers/login';
 import Loader from '../components/Loader';
 import Firebase from '../utils/firebase';
-
 
 const adminPaths = ['/admin'];
 
