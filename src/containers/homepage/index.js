@@ -8,6 +8,7 @@ import 'antd/dist/antd.css';
 import Firebase from '../../utils/firebase';
 import Loader from "../../components/Loader";
 import Utils from '../../utils/utils';
+import BackendAPI from "../../utils/backend-api";
 
 export default class HomePage extends React.Component {
     constructor(props) {
@@ -17,7 +18,8 @@ export default class HomePage extends React.Component {
             images: [],
             showLoader: false,
             pagesLeft: true,
-            tHandles: [],
+            lastPage: 1,
+            users: [],
             tweetUrls: []
         };
     }
@@ -28,45 +30,38 @@ export default class HomePage extends React.Component {
     }
 
     fetchInitialData = () => {
-        let tHandles = [];
-        const dataPath = "tHandles";
-        return this.db.getData(dataPath).then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                tHandles.push(doc.id)
-            });
-            this.setState({ tHandles });
-            this.fetchUser(tHandles[0]);
+        return BackendAPI.getAllUsers().then((res) => {
+            const users = res.data;
+            this.setState({ users });
+            this.fetchUser(users[0]);
         }).catch(err => {
             console.error(err);
             this.setState({ showLoader: false });
         })
     }
 
-    fetchUser = (tHandle) => {
-        this.setState({ images: [], tweetUrls: [], showLoader: true }, () => {
-            this.fetchData(tHandle, true);
+    fetchUser = (user) => {
+        this.setState({ images: [], tweetUrls: [], lastPage: 1, showLoader: true }, () => {
+            this.fetchData(user);
         });
     }
 
-    fetchData = (tHandle, start) => {
-        let dataPath = `tHandles/${tHandle}/images/`;
-        let orderBy = { "field": "tweet_id", "order": "desc" }, limit = 10, startAfter;
-        if (!start) {
-            startAfter = this.state.lastVisible;
-        }
+    fetchData = (user) => {
+        let orderBy = "tweet_id", limit = 10;
+        const { images, lastPage } = this.state;
 
-        this.setState({ startIndex: Math.max(0, this.state.images.length - 1) });
-        return this.db.getData(dataPath, orderBy, startAfter, limit).then(res => {
-            let imageObj, images = [], tweetUrls = [];
-            res.forEach((tweetObj) => {
-                imageObj = tweetObj.data();
-                for (let imageIndex in imageObj.tweet_media_url) {
+        this.setState({ startIndex: Math.max(0, images.length - 1) });
+        return BackendAPI.getUserData(user, lastPage, orderBy, limit).then(res => {
+            let images = [], tweetUrls = [];
+            const tweets = res.data;
+            tweets.forEach((tweetObj) => {
+                for (let imageIndex in tweetObj.tweet_media_url) {
                     images.push({
-                        original: imageObj.tweet_media_url[imageIndex],
-                        thumbnail: imageObj.tweet_media_url[imageIndex],
-                        description: Utils.removeURLFromText(imageObj.tweet_text)
+                        original: tweetObj.tweet_media_url[imageIndex],
+                        thumbnail: tweetObj.tweet_media_url[imageIndex],
+                        description: Utils.removeURLFromText(tweetObj.tweet_text)
                     })
-                    tweetUrls.push(imageObj.tweet_url)
+                    tweetUrls.push(tweetObj.tweet_url)
                 }
             })
 
@@ -75,9 +70,9 @@ export default class HomePage extends React.Component {
             this.setState({
                 images: this.state.images.concat(images.reverse()),
                 tweetUrls: this.state.tweetUrls.concat(tweetUrls.reverse()),
-                tHandle,
-                lastVisible: res.docs[res.docs.length - 1],
-                pagesLeft: res.docs.length === 10
+                user,
+                lastPage: lastPage + 1,
+                pagesLeft: tweets.length === 10
             });
         }).catch(err => {
             console.error(err);
@@ -88,7 +83,7 @@ export default class HomePage extends React.Component {
 
     fetchPrevDay = () => {
         if (this.state.pagesLeft)
-            this.fetchData(this.state.tHandle);
+            this.fetchData(this.state.user);
     }
 
     handleImageSlide = (imageIndex) => {
@@ -97,8 +92,8 @@ export default class HomePage extends React.Component {
         }
     }
 
-    handleTwitterHandleChange = (e) => {
-        this.fetchUser(this.state.tHandles[e.key]);
+    handleUserChange = (e) => {
+        this.fetchUser(this.state.users[e.key]);
     }
 
     handleOnClick = (e) => {
@@ -117,9 +112,9 @@ export default class HomePage extends React.Component {
     render() {
         const { images, startIndex, showLoader } = this.state;
         const menu = (
-            <Menu onClick={this.handleTwitterHandleChange}>
+            <Menu onClick={this.handleUserChange}>
                 {
-                    this.state.tHandles.map((user, index) => {
+                    this.state.users.map((user, index) => {
                         return <Menu.Item key={index}>{user}</Menu.Item>
                     })
                 }

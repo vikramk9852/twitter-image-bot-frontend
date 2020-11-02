@@ -5,6 +5,12 @@ class Utils {
         }
         return text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '');
     }
+
+    static serializeURLParameters(obj) {
+        return Object.keys(obj)
+            .map(key => `${key}=${encodeURIComponent(obj[key])}`)
+            .join('&')
+    }
 }
 
 export default Utils;

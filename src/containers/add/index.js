@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, message, Modal, Select } from "antd"
 import './index.scss';
-import TwitterApi from '../../utils/twitter-api';
+import BackendAPI from '../../utils/backend-api';
 import { LoadingOutlined } from '@ant-design/icons';
 import Loader from '../../components/Loader';
 const { Option } = Select;
@@ -38,11 +38,11 @@ const AddTwitterHandle = () => {
         }
 
         const searchWithAPI = (value) => {
-            return TwitterApi.searchUsers(value).then(res => {
+            return BackendAPI.searchUsers(value).then(res => {
                 let fetchedData = res.data;
                 let selectOptions = [];
                 selectOptions = fetchedData.map((value, index) => (
-                    <Option key={index} value={value.screen_name}>{value.name}</Option>
+                    <Option key={index} value={value.screen_name}>{`${value.name} (@${value.screen_name})`}</Option>
                 ))
 
                 setSelectOptions(selectOptions);
@@ -65,7 +65,7 @@ const AddTwitterHandle = () => {
         const addTwitterHandle = () => {
             const handle = selectedValue;
             setShowLoader(true);
-            return TwitterApi.addtHandle(handle).then(res => {
+            return BackendAPI.addUser(handle).then(res => {
                 message.success(`${handle} added successfully to the database`);
                 console.log(res);
             }).catch(err => {
